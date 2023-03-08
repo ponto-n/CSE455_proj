@@ -1,0 +1,22 @@
+html,
+body {
+  font-family: "Space Mono", sans-serif;
+  font-size: 18px;
+  line-height: 1.4em;
+  color: GhostWhite;
+}
+
+body {
+  margin-top: 4rem;
+  background-color:black;
+}
+
+header {
+  text-align: center;
+  width: 100%;
+}
+
+h1,
+h2 {
+  text-transform: capitalize;
+}
