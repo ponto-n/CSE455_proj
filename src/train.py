@@ -49,6 +49,7 @@ from torchvision.transforms import (
 )
 
 from model import ResNetForImageRotation, rotation_loss
+from my_dataset import DebugRotationDataset
 
 """ Fine-tuning a 🤗 Transformers model for image classification"""
 
@@ -216,7 +217,10 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    dataset = None
+    dataset = {
+        "train": DebugRotationDataset(1000),
+        "validation": DebugRotationDataset(10)
+    }
     # Initialize our dataset and prepare it for the 'image-classification' task.
     # if data_args.dataset_name is not None:
     #     dataset = load_dataset(
