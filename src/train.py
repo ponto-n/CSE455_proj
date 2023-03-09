@@ -255,7 +255,7 @@ def main():
     set_seed(training_args.seed)
 
     dataset = {
-        "train": DebugRotationDataset(1000, "train"),
+        "train": DebugRotationDataset(1000, "training"),
         "validation": DebugRotationDataset(10, "validation"),
     }
     # Initialize our dataset and prepare it for the 'image-classification' task.
