@@ -56,7 +56,7 @@ from my_dataset import DebugRotationDataset
 logger = logging.getLogger(__name__)
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-check_min_version("4.27.0.dev0")
+# check_min_version("4.27.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/image-classification/requirements.txt")
 
@@ -265,8 +265,8 @@ def main():
     # predictions and label_ids field) and has to return a dictionary string to float.
     def compute_metrics(p):
         return {
-            "mse": rotation_loss(torch.tensor(p.predictions, p.label_ids)).mean().numpy(),
-            "mae": rotation_loss(torch.tensor(p.predictions, p.label_ids, nn.L1Loss)).mean().numpy(),
+            "mse": rotation_loss(torch.tensor(p.predictions), torch.tensor(p.label_ids)).mean().item(),
+            "mae": rotation_loss(torch.tensor(p.predictions), torch.tensor(p.label_ids), torch.nn.L1Loss).mean().item(),
         }
 
     config = AutoConfig.from_pretrained(
