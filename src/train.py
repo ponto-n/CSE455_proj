@@ -37,6 +37,16 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
+from PIL import Image
+from torchvision.transforms import (
+    CenterCrop,
+    Compose,
+    Normalize,
+    RandomHorizontalFlip,
+    RandomResizedCrop,
+    Resize,
+    ToTensor,
+)
 
 from model import ResNetForImageRotation, rotation_loss
 
@@ -206,6 +216,7 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
+    dataset = None
     # Initialize our dataset and prepare it for the 'image-classification' task.
     # if data_args.dataset_name is not None:
     #     dataset = load_dataset(
@@ -261,7 +272,7 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
-    model = ResNetForImageRotation.from_pretrained(model_args.model_name_or_path)
+    model = ResNetForImageRotation.from_pretrained(model_args.model_name_or_path, config=config)
     # model = AutoModelForImageClassification.from_pretrained(
     #     model_args.model_name_or_path,
     #     from_tf=bool(".ckpt" in model_args.model_name_or_path),
@@ -284,54 +295,54 @@ def main():
     else:
         size = (image_processor.size["height"], image_processor.size["width"])
     normalize = Normalize(mean=image_processor.image_mean, std=image_processor.image_std)
-    _train_transforms = Compose(
-        [
-            RandomResizedCrop(size),
-            RandomHorizontalFlip(),
-            ToTensor(),
-            normalize,
-        ]
-    )
-    _val_transforms = Compose(
-        [
-            Resize(size),
-            CenterCrop(size),
-            ToTensor(),
-            normalize,
-        ]
-    )
+    # _train_transforms = Compose(
+    #     [
+    #         RandomResizedCrop(size),
+    #         # RandomHorizontalFlip(),
+    #         ToTensor(),
+    #         normalize,
+    #     ]
+    # )
+    # _val_transforms = Compose(
+    #     [
+    #         Resize(size),
+    #         CenterCrop(size),
+    #         ToTensor(),
+    #         normalize,
+    #     ]
+    # )
 
-    def train_transforms(example_batch):
-        """Apply _train_transforms across a batch."""
-        example_batch["pixel_values"] = [
-            _train_transforms(pil_img.convert("RGB")) for pil_img in example_batch["image"]
-        ]
-        return example_batch
+    # def train_transforms(example_batch):
+    #     """Apply _train_transforms across a batch."""
+    #     example_batch["pixel_values"] = [
+    #         _train_transforms(pil_img.convert("RGB")) for pil_img in example_batch["image"]
+    #     ]
+    #     return example_batch
 
-    def val_transforms(example_batch):
-        """Apply _val_transforms across a batch."""
-        example_batch["pixel_values"] = [_val_transforms(pil_img.convert("RGB")) for pil_img in example_batch["image"]]
-        return example_batch
+    # def val_transforms(example_batch):
+    #     """Apply _val_transforms across a batch."""
+    #     example_batch["pixel_values"] = [_val_transforms(pil_img.convert("RGB")) for pil_img in example_batch["image"]]
+    #     return example_batch
 
-    if training_args.do_train:
-        if "train" not in dataset:
-            raise ValueError("--do_train requires a train dataset")
-        if data_args.max_train_samples is not None:
-            dataset["train"] = (
-                dataset["train"].shuffle(seed=training_args.seed).select(range(data_args.max_train_samples))
-            )
-        # Set the training transforms
-        dataset["train"].set_transform(train_transforms)
+    # if training_args.do_train:
+    #     if "train" not in dataset:
+    #         raise ValueError("--do_train requires a train dataset")
+    #     if data_args.max_train_samples is not None:
+    #         dataset["train"] = (
+    #             dataset["train"].shuffle(seed=training_args.seed).select(range(data_args.max_train_samples))
+    #         )
+    #     # Set the training transforms
+    #     # dataset["train"].set_transform(train_transforms)
 
-    if training_args.do_eval:
-        if "validation" not in dataset:
-            raise ValueError("--do_eval requires a validation dataset")
-        if data_args.max_eval_samples is not None:
-            dataset["validation"] = (
-                dataset["validation"].shuffle(seed=training_args.seed).select(range(data_args.max_eval_samples))
-            )
-        # Set the validation transforms
-        dataset["validation"].set_transform(val_transforms)
+    # if training_args.do_eval:
+    #     if "validation" not in dataset:
+    #         raise ValueError("--do_eval requires a validation dataset")
+    #     if data_args.max_eval_samples is not None:
+    #         dataset["validation"] = (
+    #             dataset["validation"].shuffle(seed=training_args.seed).select(range(data_args.max_eval_samples))
+    #         )
+    #     # Set the validation transforms
+    #     # dataset["validation"].set_transform(val_transforms)
 
     # Initalize our trainer
     trainer = Trainer(
