@@ -40,7 +40,7 @@ class ResNetForImageRotation(ResNetPreTrainedModel):
     def forward(
         self,
         pixel_values: Optional[torch.FloatTensor] = None,
-        labels: Optional[torch.LongTensor] = None,
+        labels: Optional[torch.FloatTensor] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
     ) -> ImageClassifierOutputWithNoAttention:

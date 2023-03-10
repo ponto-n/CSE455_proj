@@ -1,6 +1,11 @@
+import os
+import pathlib
+
 import torch
 import random
 from PIL import Image
+import imghdr
+import preprocessor
 from preprocessor import create_connection
 from torchvision import transforms
 
@@ -41,3 +46,41 @@ class DebugRotationDataset(Dataset):
                 self.dict[idx] = (tensor, entry[1])
         except Exception as e:
             print(e)
+
+class RotationDataset(Dataset):
+    def __init__(self, image_dir, transform, max_size=None):
+        super().__init__()
+        self.files = [file for file in pathlib.Path(image_dir).rglob("*.[jJ][pP][gG]")]
+        if max_size is not None:
+            self.files = self.files[:max_size]
+        self.transform = transform
+    
+    def __len__(self):
+        return len(self.files)
+    
+    def __getitem__(self, idx):
+        img = Image.open(self.files[idx]).convert("RGB")
+        og_width = img.width
+        og_height = img.height
+
+        radians_rotated = random.random() * 2 * np.pi
+        img = img.rotate(radians_rotated / (2 * np.pi) * 360)
+
+        largest_rect = preprocessor.largest_rotated_rect(og_width, og_height, radians_rotated)
+
+        img = preprocessor.crop_around_center(img, int(largest_rect[0]), int(largest_rect[1]))
+
+        # Crop and resize
+        img = self.transform(img)
+        return {
+            "pixel_values": img,
+            "labels": torch.tensor(radians_rotated)
+        }
+
+
+
+
+        
+
+
+

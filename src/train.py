@@ -49,7 +49,7 @@ from torchvision.transforms import (
 )
 
 from model import ResNetForImageRotation, rotation_loss
-from my_dataset import DebugRotationDataset
+from my_dataset import DebugRotationDataset, RotationDataset
 
 """ Fine-tuning a 🤗 Transformers model for image classification"""
 
@@ -254,10 +254,6 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    dataset = {
-        "train": DebugRotationDataset(1000, "training"),
-        "validation": DebugRotationDataset(10, "validation"),
-    }
     # Initialize our dataset and prepare it for the 'image-classification' task.
     # if data_args.dataset_name is not None:
     #     dataset = load_dataset(
@@ -346,22 +342,36 @@ def main():
     normalize = Normalize(
         mean=image_processor.image_mean, std=image_processor.image_std
     )
-    # _train_transforms = Compose(
-    #     [
-    #         RandomResizedCrop(size),
-    #         # RandomHorizontalFlip(),
-    #         ToTensor(),
-    #         normalize,
-    #     ]
-    # )
-    # _val_transforms = Compose(
-    #     [
-    #         Resize(size),
-    #         CenterCrop(size),
-    #         ToTensor(),
-    #         normalize,
-    #     ]
-    # )
+    _train_transforms = Compose(
+        [
+            RandomResizedCrop(size),
+            # RandomHorizontalFlip(),
+            ToTensor(),
+            normalize,
+        ]
+    )
+    _val_transforms = Compose(
+        [
+            Resize(size),
+            CenterCrop(size),
+            ToTensor(),
+            normalize,
+        ]
+    )
+
+    print("Creating datasets...")
+
+    dataset = {
+        "train": RotationDataset("./birds23wi/birds/train", _train_transforms),
+        "validation": RotationDataset("./birds23wi/birds/test", _val_transforms, 1000),
+    }
+    print(f"Created datasets with size train {len(dataset['train'])} val {len(dataset['validation'])}")
+
+    # dataset = {
+    #     "train": DebugRotationDataset(1000, "training"),
+    #     "validation": DebugRotationDataset(10, "validation"),
+    # }
+
 
     # def train_transforms(example_batch):
     #     """Apply _train_transforms across a batch."""
