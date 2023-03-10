@@ -1,7 +1,7 @@
 import torch
 import random
 from PIL import Image
-from preprocessor import *
+from preprocessor import create_connection
 from torchvision import transforms
 
 from torch.utils.data import Dataset
