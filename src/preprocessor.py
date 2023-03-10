@@ -8,16 +8,18 @@ import torchvision.transforms as transforms
 import math
 
 # folder location containing all images
-FOLDER_DIR = r"data/test_birds"
+FOLDER_DIR = r"data/birds"
 ROTATED_FOLDER_DIR = r"data/rotated_birds"
-BARS_FOLDER_DIR = r"data/bar_birds"
+# BARS_FOLDER_DIR = r"data/bar_birds"
 
 
 def crop_around_center(img, width, height):
     """
     Given an image of size wxh, crops it to the given width and height around center
     """
-    transform = transforms.CenterCrop(min(height, width))
+    # define a transform to crop the image at center
+    transform = transforms.CenterCrop((height, width))
+    # crop the image using above defined transform
     img = transform(img)
     return img
 
@@ -26,26 +28,28 @@ def largest_rotated_rect(w, h, angle):
     """
     Given a rectangle of size wxh that has been rotated by 'angle' (in
     radians), computes the width and height of the largest possible
-    axis-aligned rectangle within the rotated rectangle.
+    axis-aligned rectangle (maximal area) within the rotated rectangle.
     """
-    quadrant = int(math.floor(angle / (math.pi / 2))) & 3
-    sign_alpha = angle if ((quadrant & 1) == 0) else math.pi - angle
-    alpha = (sign_alpha % math.pi + math.pi) % math.pi
-    bb_w = w * math.cos(alpha) + h * math.sin(alpha)
-    bb_h = w * math.sin(alpha) + h * math.cos(alpha)
-    gamma = math.atan2(bb_w, bb_w)
-    delta = math.pi - alpha - gamma
-    
-    if (w < h) :
-        length = h 
-    else: 
-        length = w
-    d = length * math.cos(alpha)
-    a = d * math.sin(alpha) / math.sin(delta)
-    y = a * math.cos(gamma)
-    x = y * math.tan(gamma)
+    if w <= 0 or h <= 0:
+        return 0, 0
 
-    return (bb_w - 2 * x, bb_h - 2 * y)
+    width_is_longer = w >= h
+    side_long, side_short = (w, h) if width_is_longer else (h, w)
+
+    # since the solutions for angle, -angle and 180-angle are all the same,
+    # if suffices to look at the first quadrant and the absolute values of sin,cos:
+    sin_a, cos_a = abs(math.sin(angle)), abs(math.cos(angle))
+    if side_short <= 2.0 * sin_a * cos_a * side_long or abs(sin_a - cos_a) < 1e-10:
+        # half constrained case: two crop corners touch the longer side,
+        #   the other two corners are on the mid-line parallel to the longer line
+        x = 0.5 * side_short
+        wr, hr = (x / sin_a, x / cos_a) if width_is_longer else (x / cos_a, x / sin_a)
+    else:
+        # fully constrained case: crop touches all 4 sides
+        cos_2a = cos_a * cos_a - sin_a * sin_a
+        wr, hr = (w * cos_a - h * sin_a) / cos_2a, (h * cos_a - w * sin_a) / cos_2a
+
+    return wr, hr
 
 
 def rotate_images():
@@ -58,19 +62,22 @@ def rotate_images():
     for filename in os.listdir(FOLDER_DIR):
         filepath = rf"{FOLDER_DIR}/{filename}"
         rotated_file_path = rf"{ROTATED_FOLDER_DIR}/{filename}"
-        bar_file_path = rf"{BARS_FOLDER_DIR}/{filename}"
+        # bar_file_path = rf"{BARS_FOLDER_DIR}/{filename}"
         if imghdr.what(filepath) != "jpeg":
             continue
-        
+
         img = Image.open(filepath)
+        og_width = img.width
+        og_height = img.height
+
         degrees_rotated = random.randint(0, 359)
-        img = img.rotate(degrees_rotated)
-        # img.save(bar_file_path) # only uncomment to generate non-cropped versions for verification
-        rectangles = largest_rotated_rect(
-            img.width, img.height, degrees_rotated
-        )
-        img = crop_around_center(img, rectangles[0], rectangles[1])
-        #img = img.resize((224, 224), Image.NEAREST) # only uncomment if you want to resize
+        radians_rotated = radians(degrees_rotated)
+        img = img.rotate(degrees_rotated, expand=True)
+
+        largest_rect = largest_rotated_rect(og_width, og_height, radians_rotated)
+
+        img = crop_around_center(img, largest_rect[0], largest_rect[1])
+        img = img.resize((224, 224), Image.NEAREST)
         img.save(rotated_file_path)
         with conn:
             # rotation is counter clockwise -> converting to clockwise
