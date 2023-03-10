@@ -10,18 +10,14 @@ import math
 # folder location containing all images
 FOLDER_DIR = r"data/test_birds"
 ROTATED_FOLDER_DIR = r"data/rotated_birds"
+BARS_FOLDER_DIR = r"data/bar_birds"
 
 
-def crop_around_center(image, width, height):
+def crop_around_center(img, width, height):
     """
-    Given an image, crops it to the given width and height,
-    around it's centre point
+    Given an image of size wxh, crops it to the given width and height around center
     """
-    # Read the image
-    img = Image.open(image)
-    # define a transform to crop the image at center
-    transform = transforms.CenterCrop(height, width)
-    # crop the image using above defined transform
+    transform = transforms.CenterCrop(min(height, width))
     img = transform(img)
     return img
 
@@ -35,19 +31,17 @@ def largest_rotated_rect(w, h, angle):
     quadrant = int(math.floor(angle / (math.pi / 2))) & 3
     sign_alpha = angle if ((quadrant & 1) == 0) else math.pi - angle
     alpha = (sign_alpha % math.pi + math.pi) % math.pi
-
     bb_w = w * math.cos(alpha) + h * math.sin(alpha)
     bb_h = w * math.sin(alpha) + h * math.cos(alpha)
-
-    gamma = math.atan2(bb_w, bb_w) if (w < h) else math.atan2(bb_w, bb_w)
-
+    gamma = math.atan2(bb_w, bb_w)
     delta = math.pi - alpha - gamma
-
-    length = h if (w < h) else w
-
+    
+    if (w < h) :
+        length = h 
+    else: 
+        length = w
     d = length * math.cos(alpha)
     a = d * math.sin(alpha) / math.sin(delta)
-
     y = a * math.cos(gamma)
     x = y * math.tan(gamma)
 
@@ -64,19 +58,19 @@ def rotate_images():
     for filename in os.listdir(FOLDER_DIR):
         filepath = rf"{FOLDER_DIR}/{filename}"
         rotated_file_path = rf"{ROTATED_FOLDER_DIR}/{filename}"
+        bar_file_path = rf"{BARS_FOLDER_DIR}/{filename}"
         if imghdr.what(filepath) != "jpeg":
             continue
-
+        
         img = Image.open(filepath)
-        # img = img.resize((224, 224), Image.NEAREST)
-
         degrees_rotated = random.randint(0, 359)
         img = img.rotate(degrees_rotated)
-        # img.save(rotated_file_path)
-        largest_rotated_rect = largest_rotated_rect(
+        # img.save(bar_file_path) # only uncomment to generate non-cropped versions for verification
+        rectangles = largest_rotated_rect(
             img.width, img.height, degrees_rotated
         )
-        img = crop_around_center(img, img.width, img.height)
+        img = crop_around_center(img, rectangles[0], rectangles[1])
+        #img = img.resize((224, 224), Image.NEAREST) # only uncomment if you want to resize
         img.save(rotated_file_path)
         with conn:
             # rotation is counter clockwise -> converting to clockwise
