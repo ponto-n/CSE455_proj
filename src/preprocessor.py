@@ -11,18 +11,20 @@ import math
 FOLDER_DIR = r"data/test_birds"
 ROTATED_FOLDER_DIR = r"data/rotated_birds"
 
+
 def crop_around_center(image, width, height):
     """
     Given an image, crops it to the given width and height,
     around it's centre point
     """
-  # Read the image
+    # Read the image
     img = Image.open(image)
     # define a transform to crop the image at center
     transform = transforms.CenterCrop(height, width)
     # crop the image using above defined transform
     img = transform(img)
     return img
+
 
 def largest_rotated_rect(w, h, angle):
     """
@@ -49,10 +51,8 @@ def largest_rotated_rect(w, h, angle):
     y = a * math.cos(gamma)
     x = y * math.tan(gamma)
 
-    return (
-        bb_w - 2 * x,
-        bb_h - 2 * y
-    )
+    return (bb_w - 2 * x, bb_h - 2 * y)
+
 
 def rotate_images():
     """
@@ -68,12 +68,14 @@ def rotate_images():
             continue
 
         img = Image.open(filepath)
-        #img = img.resize((224, 224), Image.NEAREST)
+        # img = img.resize((224, 224), Image.NEAREST)
 
         degrees_rotated = random.randint(0, 359)
         img = img.rotate(degrees_rotated)
-        #img.save(rotated_file_path)
-        largest_rotated_rect = largest_rotated_rect(img.width, img.height, degrees_rotated)
+        # img.save(rotated_file_path)
+        largest_rotated_rect = largest_rotated_rect(
+            img.width, img.height, degrees_rotated
+        )
         img = crop_around_center(img, img.width, img.height)
         img.save(rotated_file_path)
         with conn:
