@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 import math
 
 # folder location containing all images
-FOLDER_DIR = r"data/birds"
+FOLDER_DIR = r"data/test_birds"
 ROTATED_FOLDER_DIR = r"data/rotated_birds"
 
 def crop_around_center(image, width, height):
