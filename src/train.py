@@ -367,7 +367,7 @@ def main():
 
     dataset = {
         "train": RotationDataset("./birds23wi/birds/train", _train_transforms),
-        "validation": RotationDataset("./birds23wi/birds/test", _val_transforms, 1000),
+        "validation": RotationDataset("./birds23wi/birds/test", _val_transforms),
     }
     print(f"Created datasets with size train {len(dataset['train'])} val {len(dataset['validation'])}")
 
