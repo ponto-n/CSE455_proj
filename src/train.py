@@ -42,6 +42,7 @@ from torchvision.transforms import (
     CenterCrop,
     Compose,
     Normalize,
+    RandomCrop,
     RandomHorizontalFlip,
     RandomResizedCrop,
     Resize,
@@ -345,8 +346,10 @@ def main():
     _train_transforms = Compose(
         [
             # RandomResizedCrop(size),
-            Resize(size),
-            CenterCrop(size),
+            # Resize(size),
+            # CenterCrop(size),
+            # RandomCrop(size),
+            RandomResizedCrop(size, scale=(0.7, 1.0), ratio=(0.99, 1.01)),
             ToTensor(),
             normalize,
         ]
