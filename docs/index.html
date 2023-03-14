@@ -1,28 +1,181 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>CSE 455 Project</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <header>
-            <h1>Image Rotation Correction</h1>
-        </header>
-        <main>
-            <h2>Problem description</h2>
-            <h2>Previous work</h2>
-            <h2>Our approach</h2>
-            <h2>Datasets</h2>
-            <h2>Results</h2>
-            <h2>Discussion</h2>
-            <h3>Problems we encountered</h3>
-            <h3>Further steps</h3>
-            <h3>How our approach differed from others</h3>
-        </main>
-        <footer>
 
-        </footer>
-    </body>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <title>CSE 455 Project</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Image Rotation Correction</h1>
+        <div class="authors">
+            Authors:
+            Noah Ponto,
+            Justin Yang,
+            Julia Wang,
+            Daniel Cheng
+        </div>
+    </header>
+    <main>
+        <h2>summary video</h2>
+        <iframe
+            src="https://www.youtube-nocookie.com/embed/FEZ-YS5R4MM"
+            title="YouTube video player: CSE 455 project summary video" 
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+        </iframe>
+        <h2>Problem description</h2>
+        <p>
+            Have you ever been taking photographs with a phone or digital camera, then later realize that all the images
+            are rotated? Cameras might not have the ability to detect the orientation (either portrait or landscape)
+            when the photographer takes the image, or the camera might incorrectly detect the orientation. This leads to
+            the camera storing the image data improperly, and forces the photographer to manually correct the
+            orientation of each image individually.
+        </p>
+        <p>
+            Our model automatically detects when an image is rotated, and suggests the rotation required to orient the
+            image upright. This would save photographers the time and energy of individually rotating each image.
+        </p>
+        <h2>Previous work</h2>
+        <h3 class="first-h3">Deep Neural Models</h3>
+        <p>
+            <a
+                href="https://www.google.com/url?q=https://huggingface.co/docs/transformers/model_doc/resnet&amp;sa=D&amp;source=editors&amp;ust=1678751005232992&amp;usg=AOvVaw0BOSBx221xEsGm4E6CTHAm">ResNet
+            </a></span><span>is a deep neural network designed for image classification on the ImageNet dataset. It was
+                designed to make it easier to train deeper neural networks, and its success was demonstrated when it won
+                1st place on the ILSVRC 2015 classification task. The paper for the ResNet model can be found
+                <a
+                    href="https://www.google.com/url?q=https://arxiv.org/abs/1512.03385&amp;sa=D&amp;source=editors&amp;ust=1678751005233249&amp;usg=AOvVaw08KH68HOh6ccUJwNxv4lqI">here</a>.
+        </p>
+        <p>
+            Specifically, our model is built on top of Microsoft’s pretrained
+            <a
+                href="https://www.google.com/url?q=https://huggingface.co/microsoft/resnet-50&amp;sa=D&amp;source=editors&amp;ust=1678751005233544&amp;usg=AOvVaw0GhZFyL9elrSRBoxkHW-sh">ResNet-50</a>
+            model, which is pre-trained on ImageNet-1k at 224x224 resolution.
+        </p>
+        <h3>Technical Details</h3>
+        <p>
+            During this project, we also found
+            <a
+                href="https://www.google.com/url?q=https://towardsdatascience.com/how-to-use-datasets-and-dataloader-in-pytorch-for-custom-text-data-270eed7f7c00&amp;sa=D&amp;source=editors&amp;ust=1678751005234014&amp;usg=AOvVaw0GvDNYYKmDCnE_XOy4ybBP">
+                PyTorch dataloaders</a>
+            extremely helpful for efficiently processing, formatting, and batching our data for training. We used the
+            Huggingface library as a starting point for training code as well as for getting the pretrained ResNet
+            model.
+        </p>
+        <h2>Our approach</h2>
+        <p>
+            Starting with Microsoft's pretrained ResNet model, we train the model to predict the number of degrees that
+            an image has been rotated. We replace the final linear classification layer with a linear layer that
+            predicts a single scalar: the angle that the image was rotated. The details of the model architecture can be
+            found in the config.json file in our GitHub repository.
+        </p>
+        <p>
+            Since angles are equivalent up to multiples of 360 degrees, we take the remainder of dividing the predicted
+            angle from the model by 360 degrees and some other little modifications to avoid penalizing the model from
+            being off by a multiple of 360 degrees. We train using the MSE loss, and use mean absolute error by
+            evaluation.
+        </p>
+        <h2>Dataset</h2>
+        <p>
+            We use the same
+            <a
+                href="https://www.google.com/url?q=https://www.kaggle.com/competitions/birds23wi/data&amp;sa=D&amp;source=editors&amp;ust=1678751005234786&amp;usg=AOvVaw0EJzF3Z3w99wCPdLQefXTS">dataset
+            </a>
+            designed for the Kaggle bird classification challenge. For our purposes, we rotate each image at a random
+            angle from 0 to 359 degrees, recording the corresponding rotation for each image, before feeding it into our
+            model. Each image is cropped during preprocessing to hide the black borders which are an unwanted artifact
+            of rotation.
+        </p>
+        <h2>Results</h2>
+        <p>
+            After training for 3 hours and 22 minutes on a sample of 5,050 randomly rotated images for 100 epochs, our
+            model reached a value of 0.2973 for mean squared error. The full training curves for our best performing
+            model can be found
+            <a
+                href="https://wandb.ai/uw-d0/cse455">here</a>.
+            We used a default learning rate of 5e-5, batch sizes of 64 (since that&rsquo;s what fit in the GPU), a
+            linear learning rate scheduler, and Adam optimizer with default parameters. We train for 100 epochs.
+        </p>
+        <figure>
+            <img src="./eval_mse.png" alt="Evaluation mean squared error during training">
+            <figcaption>Fig.1 - Evaluation <abbr title="Mean Squared Error">MSE</abbr> v.s. training step.</figcaption>
+        </figure>
+        <figure>
+            <img src="./training_plots.png" alt="All evaluation plots during training">
+            <figcaption>Fig.2 - All evaluation plots during training.</figcaption>
+        </figure>
+        <h2>Discussion</h2>
+        <h3 class="first-h3">Problems we encountered</h3>
+        <p>
+            We didn&rsquo;t really encounter any significant unexpected problems when training the model. Some
+            challenges we encountered was preprocessing the dataset properly. We wanted to preprocess the data to remove
+            black borders, because that would otherwise make the problem too easy for the model. Another challenge was
+            image augmentation. Since rotation mattered, we couldn&rsquo;t just always randomly flip the image, and we
+            also
+            had to decide where to crop the image to. In the end, we just used a center crop of the image after rotation
+            and removing borders. Another issue was evaluation code. In principle, we could randomly crop the image to
+            various locations then take the average predicted angle of the model. In practice, we found it was better to
+            just take a center crop.
+        </p>
+        <p>
+            Due to some combination of training time, dataset size, hyperparameters, and model architecture, we
+            didn&rsquo;t notice any overfitting problems, and the modelDue to some combination of training time, dataset
+            size, hyperparameters, and model architecture, we didn&rsquo;t notice any overfitting problems, and the
+            model&rsquo;s performance of the dev and test sets were comparable to the training performance.
+            s performance of the dev and test sets were comparable to the
+            training performance.
+        </p>
+        <h3>Further steps</h3>
+        <p>
+            If we were to continue to work on the model we&rsquo;d like to put more time into
+            tuning the hyperparameters. The ResNet backbone of our model has many advantages, but one downside is that
+            it can be quite large and expensive to compute. Going forward, it would be useful to fine tune the number
+            and size of hidden dimensions of the deep neural network to maximize the performance of the model while
+            minimizing its size.
+        </p>
+        <p>
+            Another thing we could work on is applying the model to different datasets, since it currently only works on
+            bird images.
+        </p>
+        <h3>How our approach differed from others</h3>
+        <p>
+            There are many different algorithmic approaches to detecting image rotation on the internet. Each has
+            slightly different strengths and weaknesses with different use cases. Our model
+            primarily focuses on taking only the rotated image as input and outputting a predicted rotation angle
+            between 0 and 359 degrees.
+        </p>
+        <p>
+            There are some projects, like
+            <a
+                href="https://www.google.com/url?q=https://www.mathworks.com/help/vision/ug/find-image-rotation-and-scale-using-automated-feature-matching.html&amp;sa=D&amp;source=editors&amp;ust=1678751005236525&amp;usg=AOvVaw2R5sDV4I6d1S3lJppBUmVg">
+                this example</a>,
+            which use feature matching similar to stitching together panorama images. By finding matching points between
+            the original and distorted versions of an image, it can highly accurately predict the transpose to correct
+            the distorted image. Compared to this, our model has the
+            advantage of requiring only the rotated image data as input. The design of our model is more useful for
+            real-world applications, where an un-rotated image wouldn&rsquo;t be available.
+        </p>
+        <p>
+            There are other projects which use convolutional neural networks, such as the one in this
+            <a
+                href="https://www.google.com/url?q=https://yousry.medium.com/correcting-image-orientation-using-convolutional-neural-networks-bf0f7be3a762&amp;sa=D&amp;source=editors&amp;ust=1678751005236976&amp;usg=AOvVaw3Y7m2zkspI-ngtBgUT2j-x">
+                Medium article</a>,
+            which are more similar to our interpretation. A smaller CNN such as this would have the benefit of being
+            light-weight and less computationally expensive, but has the downside of only being able to predict four
+            classes of image rotation. This CNN assumes that images are rotated some multiple of 90 degrees, which is
+            not as robust as our implementation which is able to handle any integer angle from 0 to 359 degrees.
+        </p>
+    </main>
+    <footer>
+        <a href="https://github.com/ponto-n/CSE455_proj">Project GitHub page</a>
+    </footer>
+</body>
+
 </html>
-

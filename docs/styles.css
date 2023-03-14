@@ -1,14 +1,16 @@
 html,
 body {
-  font-family: "Space Mono", sans-serif;
-  font-size: 18px;
+  font-family: 'Roboto', "Space Mono", sans-serif;
+  font-size: 15px;
   line-height: 1.4em;
-  color: var(--foreground-color);
+  color: var(--primary-color);
 }
 
-body {
-  margin-top: 4rem;
-  background-color: var(--background-color);
+:root {
+  --primary-color: hsl(0, 0%, 95%);
+  --primary2-color: hsl(0, 0%, 80%);
+  --background-color: hsl(0, 0%, 8%);
+  --footer-color: hsl(0, 0%, 15%);
 }
 
 header {
@@ -16,12 +18,103 @@ header {
   width: 100%;
 }
 
+body {
+  margin: 0;
+  background-color: var(--background-color);
+}
+
+main {
+  max-width: 40em;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+iframe {
+  aspect-ratio: 16 / 9;
+  height: 100%;
+  width: 100%;
+  max-width: 40em;
+  margin: auto;
+}
+
 h1,
 h2 {
   text-transform: capitalize;
 }
 
-:root {
-  --foreground-color: #EDEDED;
-  --background-color: #171717;
+h1 {
+  line-height: 1;
+  font-size: min(6vw, 4rem);
+  margin-bottom: 1rem;
 }
+
+
+h2 {
+  margin: 2em auto 0.5em;
+}
+
+h3 {
+  margin: 0.5em 0 0.15em;
+  color: var(--primary2-color);
+  font-weight: lighter;
+}
+
+h3.first-h3 {
+  margin-top: 0;
+}
+
+p {
+  line-height: 1.5;
+  margin: 0 0 0.5em;
+  text-indent: 1em;
+}
+
+a:link {
+  color: hsl(217, 60%, 60%);
+}
+
+a:visited {
+  color: hsl(250, 60%, 68%);
+}
+
+footer {
+  background-color: var(--footer-color);
+  height: 5rem;
+  padding: 1rem 4rem;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+footer a:link {
+  color: hsl(0, 0%, 40%);
+}
+
+footer a:hover {
+  font-size: smaller;
+  color: hsl(0, 0%, 60%);
+}
+
+footer a {
+  font-size: smaller;
+  text-decoration: none;
+}
+
+img {
+  width: 100%;
+}
+
+.authors {
+  color: var(--primary2-color);
+}
+
+figure {
+  margin: 0.5em;
+}
+
+figcaption {
+  font-size: smaller;
+  font-style: italic;
+  text-align: center;
+}
+
