@@ -13,7 +13,7 @@
 <body>
     <header>
         <h1>Image Rotation Correction</h1>
-        <div class="authors">
+        <div id="authors">
             Authors:
             Noah Ponto,
             Justin Yang,
@@ -23,11 +23,7 @@
     </header>
     <main>
         <h2>summary video</h2>
-        <iframe
-            src="https://www.youtube-nocookie.com/embed/FEZ-YS5R4MM"
-            title="YouTube video player: CSE 455 project summary video" 
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        <iframe src="https://www.youtube-nocookie.com/embed/FEZ-YS5R4MM" title="YouTube video player" frameborder="0"
             allowfullscreen>
         </iframe>
         <h2>Problem description</h2>
@@ -98,8 +94,7 @@
             After training for 3 hours and 22 minutes on a sample of 5,050 randomly rotated images for 100 epochs, our
             model reached a value of 0.2973 for mean squared error. The full training curves for our best performing
             model can be found
-            <a
-                href="https://wandb.ai/uw-d0/cse455">here</a>.
+            <a href="https://wandb.ai/uw-d0/cse455">here</a>.
             We used a default learning rate of 5e-5, batch sizes of 64 (since that&rsquo;s what fit in the GPU), a
             linear learning rate scheduler, and Adam optimizer with default parameters. We train for 100 epochs.
         </p>
@@ -110,6 +105,11 @@
         <figure>
             <img src="./training_plots.png" alt="All evaluation plots during training">
             <figcaption>Fig.2 - All evaluation plots during training.</figcaption>
+        </figure>
+        <figure>
+            <img src="./demo_output.png" alt="All evaluation plots during training">
+            <figcaption>Fig.3 - Output of demo code. Columns are the source image input to the model, the predicted
+                output of the model, and the ground truth rotation of the image.</figcaption>
         </figure>
         <h2>Discussion</h2>
         <h3 class="first-h3">Problems we encountered</h3>

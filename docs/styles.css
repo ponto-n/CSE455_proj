@@ -8,7 +8,7 @@ body {
 
 :root {
   --primary-color: hsl(0, 0%, 95%);
-  --primary2-color: hsl(0, 0%, 80%);
+  --primary2-color: hsl(0, 0%, 78%);
   --background-color: hsl(0, 0%, 8%);
   --footer-color: hsl(0, 0%, 15%);
 }
@@ -24,15 +24,14 @@ body {
 }
 
 main {
-  max-width: 40em;
+  width: 40rem;
   display: flex;
   flex-direction: column;
   margin: auto;
 }
 
 iframe {
-  aspect-ratio: 16 / 9;
-  height: 100%;
+  height: 22.5rem;
   width: 100%;
   max-width: 40em;
   margin: auto;
@@ -49,13 +48,12 @@ h1 {
   margin-bottom: 1rem;
 }
 
-
 h2 {
-  margin: 2em auto 0.5em;
+  margin: 2rem auto 0.5rem;
 }
 
 h3 {
-  margin: 0.5em 0 0.15em;
+  margin: 0.5rem 0 0.15rem;
   color: var(--primary2-color);
   font-weight: lighter;
 }
@@ -86,26 +84,24 @@ footer {
   text-align: center;
 }
 
+footer a {
+  text-decoration: none;
+}
+
 footer a:link {
-  color: hsl(0, 0%, 40%);
+  color: hsl(0, 0%, 50%);
+}
+
+footer a:visited {
+  color: hsl(0, 0%, 50%);
 }
 
 footer a:hover {
-  font-size: smaller;
   color: hsl(0, 0%, 60%);
-}
-
-footer a {
-  font-size: smaller;
-  text-decoration: none;
 }
 
 img {
   width: 100%;
-}
-
-.authors {
-  color: var(--primary2-color);
 }
 
 figure {
@@ -118,3 +114,6 @@ figcaption {
   text-align: center;
 }
 
+#authors {
+  color: var(--primary2-color);
+}
